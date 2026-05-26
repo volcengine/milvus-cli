@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 $ErrorActionPreference = "Stop"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $Repo = "volcengine/milvus-cli"
 $BinaryName = "milvus-cli"
-$InstallDir = Join-Path $env:USERPROFILE ".milvus-cli" "bin"
+$InstallDir = Join-Path (Join-Path $env:USERPROFILE ".milvus-cli") "bin"
 
 function Get-Arch {
     $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
@@ -18,7 +19,7 @@ function Get-Arch {
 
 function Get-LatestVersion {
     $url = "https://api.github.com/repos/$Repo/releases/latest"
-    $response = Invoke-RestMethod -Uri $url -UseBasicParsing
+    $response = Invoke-RestMethod -Uri $url
     return $response.tag_name
 }
 
@@ -57,7 +58,7 @@ function Main {
 
         $src = Join-Path $tmpDir "$BinaryName.exe"
         if (-not (Test-Path $src)) {
-            $src = Join-Path $tmpDir "milvus-cli" "$BinaryName.exe"
+            $src = Join-Path (Join-Path $tmpDir "milvus-cli") "$BinaryName.exe"
         }
         if (-not (Test-Path $src)) {
             throw "binary not found in archive"
@@ -70,13 +71,14 @@ function Main {
 
         $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
         if ($currentPath -notlike "*$InstallDir*") {
-            Write-Host ""
-            Write-Host "Add $InstallDir to your PATH by running:"
-            Write-Host ""
-            Write-Host "  [Environment]::SetEnvironmentVariable('Path', '$InstallDir;' + [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')"
-            Write-Host ""
+            [Environment]::SetEnvironmentVariable("Path", "$InstallDir;$currentPath", "User")
+            Write-Host "Added $InstallDir to user PATH."
+        }
+        if ($env:Path -notlike "*$InstallDir*") {
+            $env:Path = "$InstallDir;$env:Path"
         }
 
+        Write-Host ""
         Write-Host "Run 'milvus-cli version' to verify the installation."
     } finally {
         Remove-Item -Path $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
