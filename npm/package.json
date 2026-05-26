@@ -1,0 +1,30 @@
+{
+  "name": "@volcengine/milvus-cli",
+  "version": "1.0.1",
+  "license": "MIT",
+  "description": "Install and run milvus-cli from versioned release artifacts.",
+  "type": "module",
+  "bin": {
+    "milvus-cli": "./bin/milvus-cli.mjs"
+  },
+  "scripts": {
+    "postinstall": "node ./src/postinstall.mjs",
+    "prepack": "node -e \"require('node:fs').rmSync('./vendor', { recursive: true, force: true })\"",
+    "test": "node --test ./test/*.test.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "README.CN.md",
+    "CHANGELOG.md",
+    "CHANGELOG.CN.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "config": {
+    "base_url": "https://github.com/volcengine/milvus-cli/releases/download"
+  }
+}
