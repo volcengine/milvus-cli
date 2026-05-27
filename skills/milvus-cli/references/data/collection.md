@@ -166,24 +166,69 @@ Schema 文件示例：
 
 ```json
 {
-  "collection_name": "demo",
+  "name": "demo",
   "description": "Demo collection",
+  "enable_dynamic_field": true,
+  "auto_id": true,
+  "dimension": 8,
+  "vector_field": "bf16_vec",
   "fields": [
     {
-      "name": "id",
-      "data_type": "Int64",
-      "is_primary": true,
+      "name": "doc_id",
+      "data_type": "int64",
+      "primary": true,
       "auto_id": true
     },
     {
-      "name": "vector",
-      "data_type": "FloatVector",
-      "dim": 128
+      "name": "tenant",
+      "data_type": "varchar",
+      "partition_key": true,
+      "type_params": {
+        "max_length": "64"
+      }
     },
     {
-      "name": "tag",
-      "data_type": "VarChar",
-      "max_length": 100
+      "name": "ts",
+      "data_type": "int64",
+      "clustering_key": true
+    },
+    {
+      "name": "meta",
+      "data_type": "json"
+    },
+    {
+      "name": "tags",
+      "data_type": "array",
+      "element_type": "varchar",
+      "type_params": {
+        "max_capacity": "10",
+        "max_length": "64"
+      }
+    },
+    {
+      "name": "bf16_vec",
+      "data_type": "bfloat16_vector",
+      "type_params": {
+        "dim": "8"
+      }
+    },
+    {
+      "name": "sparse_vec",
+      "data_type": "sparse_vector"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "idx_bf16_vec",
+      "field_name": "bf16_vec",
+      "index_type": "AUTOINDEX",
+      "metric_type": "COSINE"
+    },
+    {
+      "name": "idx_sparse_vec",
+      "field_name": "sparse_vec",
+      "index_type": "SPARSE_WAND",
+      "metric_type": "IP"
     }
   ]
 }
